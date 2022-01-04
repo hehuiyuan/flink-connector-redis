@@ -24,7 +24,10 @@ import redis.clients.jedis.JedisSentinelPool;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Redis command container if we want to connect to a single Redis server or to Redis sentinels
@@ -97,7 +100,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command HSET to key {} and hashField {} error message {}",
-                    key, hashField, e.getMessage());
+                        key, hashField, e.getMessage());
             }
             throw e;
         } finally {
@@ -124,7 +127,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } finally {
             releaseInstance(jedis);
         }
-        return  result;
+        return result;
     }
 
     @Override
@@ -146,7 +149,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } finally {
             releaseInstance(jedis);
         }
-        return  result;
+        return result;
     }
 
     @Override
@@ -158,7 +161,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command RPUSH to list {} error message {}",
-                    listName, e.getMessage());
+                        listName, e.getMessage());
             }
             throw e;
         } finally {
@@ -175,7 +178,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command LUSH to list {} error message {}",
-                    listName, e.getMessage());
+                        listName, e.getMessage());
             }
             throw e;
         } finally {
@@ -192,7 +195,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command RPUSH to set {} error message {}",
-                    setName, e.getMessage());
+                        setName, e.getMessage());
             }
             throw e;
         } finally {
@@ -209,7 +212,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command PUBLISH to channel {} error message {}",
-                    channelName, e.getMessage());
+                        channelName, e.getMessage());
             }
             throw e;
         } finally {
@@ -226,7 +229,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command SET to key {} error message {}",
-                    key, e.getMessage());
+                        key, e.getMessage());
             }
             throw e;
         } finally {
@@ -260,7 +263,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command PFADD to key {} error message {}",
-                    key, e.getMessage());
+                        key, e.getMessage());
             }
             throw e;
         } finally {
@@ -277,7 +280,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } catch (Exception e) {
             if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command ZADD to set {} error message {}",
-                    key, e.getMessage());
+                        key, e.getMessage());
             }
             throw e;
         } finally {
@@ -533,7 +536,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } finally {
             releaseInstance(jedis);
         }
-        return  result;
+        return result;
     }
 
     @Override
@@ -552,7 +555,7 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
         } finally {
             releaseInstance(jedis);
         }
-        return  null;
+        return null;
     }
 
     @Override
@@ -618,12 +621,107 @@ public class RedisContainer implements RedisCommandsContainer, Closeable {
             jedis = this.getInstance();
             result = jedis.incrBy(key, value);
         } catch (Exception e) {
-            if(LOG.isErrorEnabled()) {
+            if (LOG.isErrorEnabled()) {
                 LOG.error("Cannot send Redis message with command incrBy to key {} and value {} error message {}", new Object[]{key, value, e.getMessage()});
             }
             throw e;
         } finally {
             this.releaseInstance(jedis);
+        }
+        return result;
+    }
+
+    @Override
+    public String get(String key) {
+        Jedis jedis = null;
+        String result = null;
+        try {
+            jedis = getInstance();
+            result = jedis.get(key);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot get Redis message with command get to key {}  error message {}",
+                        key, e.getMessage());
+            }
+            throw e;
+        } finally {
+            releaseInstance(jedis);
+        }
+        return result;
+    }
+
+    @Override
+    public Map<String, String> hGetAll(String key) {
+        Jedis jedis = null;
+        Map<String, String> result = null;
+        try {
+            jedis = getInstance();
+            result = jedis.hgetAll(key);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot get Redis message with command get to key {}  error message {}",
+                        key, e.getMessage());
+            }
+            throw e;
+        } finally {
+            releaseInstance(jedis);
+        }
+        return result;
+    }
+
+    @Override
+    public Set<String> sMembers(String key) {
+        Jedis jedis = null;
+        Set<String> result = null;
+        try {
+            jedis = getInstance();
+            result = jedis.smembers(key);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot get Redis message with command get to key {}  error message {}",
+                        key, e.getMessage());
+            }
+            throw e;
+        } finally {
+            releaseInstance(jedis);
+        }
+        return result;
+    }
+
+    @Override
+    public List<String> lRangeAll(String key) {
+        Jedis jedis = null;
+        List<String> result = null;
+        try {
+            jedis = getInstance();
+            result = jedis.lrange(key, 0, -1);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot get Redis message with command get to key {}  error message {}",
+                        key, e.getMessage());
+            }
+            throw e;
+        } finally {
+            releaseInstance(jedis);
+        }
+        return result;
+    }
+
+    @Override
+    public Set<String> zRangeAll(String key) {
+        Jedis jedis = null;
+        Set<String> result = null;
+        try {
+            jedis = getInstance();
+            result = jedis.zrange(key, 0, -1);
+        } catch (Exception e) {
+            if (LOG.isErrorEnabled()) {
+                LOG.error("Cannot get Redis message with command get to key {}  error message {}",
+                        key, e.getMessage());
+            }
+            throw e;
+        } finally {
+            releaseInstance(jedis);
         }
         return result;
     }

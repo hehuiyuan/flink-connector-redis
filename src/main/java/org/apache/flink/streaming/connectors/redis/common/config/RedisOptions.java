@@ -3,6 +3,7 @@ package org.apache.flink.streaming.connectors.redis.common.config;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 
+import java.time.Duration;
 import java.util.Map;
 import java.util.Properties;
 
@@ -11,7 +12,7 @@ import java.util.Properties;
  */
 public class RedisOptions {
 
-    private RedisOptions(){
+    private RedisOptions() {
     }
 
     public static final ConfigOption<Integer> TIMEOUT = ConfigOptions
@@ -130,4 +131,41 @@ public class RedisOptions {
             .intType()
             .noDefaultValue()
             .withDescription("Optional ttl for insert to redis");
+
+    public static final ConfigOption<String> CACHE_TYPE = ConfigOptions
+            .key("cache.type")
+            .stringType()
+            .defaultValue("heap")
+            .withDescription("Cache type.");
+    public static final ConfigOption<Integer> CACHE_MAX_ROWS = ConfigOptions
+            .key("cache.max-rows")
+            .intType()
+            .defaultValue(0)
+            .withDescription("Cache max rows.");
+    public static final ConfigOption<Duration> CACHE_TTL = ConfigOptions
+            .key("cache.ttl")
+            .durationType()
+            .defaultValue(Duration.ofSeconds(0L))
+            .withDescription("Cache ttl.");
+    public static final ConfigOption<Integer> CACHE_MAX_RETRIES = ConfigOptions
+            .key("cache.max-retries")
+            .intType().defaultValue(1)
+            .withDescription("Cache max retries.");
+    public static final ConfigOption<Boolean> CACHE_PENETRATION_PREVENT = ConfigOptions
+            .key("cache.penetration.prevent")
+            .booleanType()
+            .defaultValue(true)
+            .withDescription("Prevent cache penetration.");
+
+    public static final ConfigOption<Boolean> LOOKUP_HASH_ENABLE =
+            ConfigOptions.key("lookup.hash.enable")
+                    .booleanType()
+                    .defaultValue(false)
+                    .withDescription("Whether to partition data by hash strategy");
+
+    public static final ConfigOption<String> LOOKUP_REDIS_DATATYPE =
+            ConfigOptions.key("lookup.redis.datatype")
+                    .stringType()
+                    .defaultValue("set")
+                    .withDescription("The data type for redis");
 }

@@ -65,7 +65,6 @@ public class RedisHandlerServices<T> {
             Class<T> RedisHanlderClass,
             Map<String, String> meta,
             Optional<ClassLoader> classLoader) {
-
         List<RedisHandler> redisHandlers = discoverRedisHanlder(classLoader);
         List<T> filtered = filter(redisHandlers, RedisHanlderClass, meta);
 
@@ -102,9 +101,11 @@ public class RedisHandlerServices<T> {
     private static List<RedisHandler> discoverRedisHanlder(Optional<ClassLoader> classLoader) {
         try {
             List<RedisHandler> result = new LinkedList<>();
-            if (classLoader.isPresent()) {
+            ClassLoader cl = classLoader.orElse(Thread.currentThread().getContextClassLoader());
+
+            if (cl != null) {
                 ServiceLoader
-                        .load(RedisHandler.class, classLoader.get())
+                        .load(RedisHandler.class, cl)
                         .iterator()
                         .forEachRemaining(result::add);
             } else {
