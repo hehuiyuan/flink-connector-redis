@@ -1,8 +1,6 @@
 ### 插件名称：flink-connector-redis
 ### 插件地址：https://github.com/jeff-zou/flink-connector-redis.git
 
-### 项目介绍
-基于[bahir-flink](https://github.com/apache/bahir-flink.git)二次开发，使它支持SQL直接定义写入redis,用户通过DDL指定自己需要保存的字段。
 
 ### 使用方法: 
 命令行执行 mvn package -DskipTests=true打包后，将生成的包flink-connector-redis_2.12-1.11.1.jar引入flink lib中即可，无需其它设置。
