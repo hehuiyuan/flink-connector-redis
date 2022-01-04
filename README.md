@@ -1,6 +1,4 @@
 ### 插件名称：flink-connector-redis
-### 插件地址：https://github.com/jeff-zou/flink-connector-redis.git
-
 
 ### 使用方法: 
 命令行执行 mvn package -DskipTests=true打包后，将生成的包flink-connector-redis_2.12-1.11.1.jar引入flink lib中即可，无需其它设置。
