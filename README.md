@@ -61,3 +61,65 @@ hset示例，相当于redis命令：*hset tom math 150*
         dataStream.addSink(redisSink);
         env.execute("RedisSinkTest");
 ```
+
+- 3.redis dim table<br>
+**示例代码路径:** 
+```sql
+create table pravegaTrainingDataSource
+(
+    trainingData varchar,
+    proctime AS PROCTIME()
+) with (
+      'connector' = 'pravega',
+      'format' = 'csv',
+      'csv.disable-quote-character' = 'true',
+      'csv.field-delimiter' = U&'\0001',
+      'controller-uri' = 'tcp://127.0.0.1:9090',
+      'scope' = 'pravega-test-scope',
+      'scan.streams' = 'hxy-test'
+      );
+
+create table histalarmDim
+(
+    metricKey     varchar,
+    histalarmData ARRAY< varchar >
+) with (
+      'connector' = 'redis',
+      'host' = '127.0.0.1',
+      'port' = '6379',
+      'redis-mode' = 'single',
+      'key-column' = 'metricKey',
+      'value-column' = 'histalarmData',
+      'lookup.hash.enable' = 'false',
+      'lookup.redis.datatype' = 'list' -- 维表使用下，数组情况需要指定redis实际数据类型 LIST SET SORTED_SET,其他忽略
+      );
+
+create table modelOfflineDataPrintSink
+(
+    trainingData varchar
+) with (
+      'connector' = 'print'
+      );
+
+create table offlineDataTable
+select CONCAT(taskid, '_', 'Hist_Alarm') as histalarmKey,
+       task_type,
+       trainingData,
+       proctime
+from (
+         select JSON_VALUE(trainingData, '$.task_id')   as taskid,
+                JSON_VALUE(trainingData, '$.task_type') as task_type,
+                trainingData,
+                proctime
+         from pravegaTrainingDataSource
+     )
+where task_type = 'OFFLINE_TRAINING';
+
+insert into modelOfflineDataPrintSink
+select DEALEXPIREANDHISTALARM_DATA(trainingData, '', histalarmData)
+from offlineDataTable
+         LEFT JOIN histalarmDim FOR SYSTEM_TIME AS OF offlineDataTable.proctime
+                   ON offlineDataTable.histalarmKey = histalarmDim.metricKey
+
+
+``` 
